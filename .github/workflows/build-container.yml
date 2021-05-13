@@ -1,9 +1,9 @@
 name: Build and Push Container
 
-on: push
-
-permissions:
-  packages: read
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
 
 jobs:
   build_and_push:
@@ -35,13 +35,20 @@ jobs:
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
-          # Use Docker `latest` tag convention
-          [ "$VERSION" = "$default-branch" ] && VERSION=latest
-          [ "$VERSION" != "" ] && VERSION="${VERSION}-"
-          VERSION="${VERSION}$(git rev-parse --short ${{ github.sha }})"
+          CURRENT_BRANCH=$VERSION
+          VERSION="${VERSION}-$(git rev-parse --short ${{ github.sha }})"
 
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
 
           docker tag ${{ github.event.repository.name }} $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+
+          echo "current branch: $CURRENT_BRANCH"
+          echo "default branch: ${{ github.event.repository.default_branch }}"
+
+          if [ "$CURRENT_BRANCH" = "${{ github.event.repository.default_branch }}" ]; then
+            echo "push latest"
+            docker tag ${{ github.event.repository.name }} $IMAGE_ID:latest
+            docker push $IMAGE_ID:latest
+          fi
