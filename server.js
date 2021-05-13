@@ -7,6 +7,10 @@ app.get('/', (_req, res) => {
     res.json({message: 'hello world!'});
 });
 
+app.get('/sample', (_req, res) => {
+    res.json({message: 'this is sample endpoint'});
+});
+
 app.use((_err, _req, res, _next) => {
     res.status(500).send('some error occurred');
 });
