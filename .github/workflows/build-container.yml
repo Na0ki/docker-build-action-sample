@@ -15,7 +15,7 @@ jobs:
       packages: write
 
     env:
-      IMAGE_NAME: build-container-sample
+      IMAGE_NAME: docker-build-action-sample
 
     steps:
       - uses: actions/checkout@v2
